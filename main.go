@@ -20,6 +20,8 @@ func main() {
 	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
 	app.Post("/body", controller.CreateUser())
+	app.Post("/login", controller.Login())
+
 	// app.Post("/api/createUser", controller.CreateUser)
 	app.Listen(":6000")
 
