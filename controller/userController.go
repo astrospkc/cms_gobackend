@@ -56,11 +56,15 @@ func CreateUser() fiber.Handler {
 				"error":"Invalid request body",
 			})
 		}
+
+		
 		if d.Email == "" || d.Password == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Email and Password are required",
 			})
 		}
+
+
 		// hashing the password
 		password:=[]byte(d.Password)
 		hashedPass, err := bcrypt.GenerateFromPassword(password,bcrypt.DefaultCost)
@@ -93,7 +97,14 @@ func CreateUser() fiber.Handler {
 			log.Println("failed to create token")
 		}
 		fmt.Println(tokenString, "token")
-    	c.Request().Header.SetCookie("token", tokenString)
+    	c.Cookie(&fiber.Cookie{
+			Name: "token",
+			Value:tokenString,
+			HTTPOnly: true,
+			Secure: true,
+			Path:"/",
+			MaxAge: 3600,
+		})
 		 err = bcrypt.CompareHashAndPassword(hashedPass, password)
     	fmt.Println(err)
 		resp := &Response{
