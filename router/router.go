@@ -1,9 +1,8 @@
-// package router
+package router
 
 // import (
 // 	"gobackend/controller"
 
-	
 // 	 "github.com/gofiber/fiber/v3"
 // )
 
@@ -14,6 +13,6 @@
 // 	// app.Post("api/createUser",controller.CreateUser)
 // 	// r.HandleFunc("/tea", ).Methods("GET")
 // 	app.Listen(":5000")
-	
+
 // }
 

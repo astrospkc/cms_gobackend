@@ -6,8 +6,10 @@ import (
 	"gobackend/connect"
 	"gobackend/controller"
 
-	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v2"
 )
+
+
 
 func main() {
 	
@@ -16,9 +18,8 @@ func main() {
 
 	
 	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
-	
 
-	app.Get("api/helloUser", controller.HelloUser)
+	app.Post("/body", controller.CreateUser())
 	// app.Post("/api/createUser", controller.CreateUser)
 	app.Listen(":6000")
 

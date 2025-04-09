@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -55,12 +56,13 @@ func Connect(){
 		log.Fatal("the error while connecting client", err)
 		return
 	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			log.Fatal("error while disconnecting: ", err)
-			return
-		}
-	}()
+	// defer func() {
+	// 	fmt.Println("Disconnecting")
+	// 	if err = client.Disconnect(context.TODO()); err != nil {
+	// 		log.Fatal("error while disconnecting: ", err)
+	// 		return
+	// 	}
+	// }()
 	
 	err = client.Ping(ctx, nil)
 	
@@ -69,6 +71,16 @@ func Connect(){
 		return
 	}
 	UsersCollection = client.Database(dbName).Collection(colNameUsers)
+	indexModel:=mongo.IndexModel{
+		Keys:bson.D{{Key:"email", Value:  -1}},
+		Options:options.Index().SetUnique(true),
+	}
+	email, err :=UsersCollection.Indexes().CreateOne(context.TODO(), indexModel)
+	if err != nil{
+		
+		log.Fatal("error occured : ", err)
+	}
+	fmt.Println("Name of Index created: " +email)
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
 	GithubCollection = client.Database(dbName).Collection(colNameGithub)
 	TeaCollection = client.Database("CMS_portfolio").Collection("tea")
