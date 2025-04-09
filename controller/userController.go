@@ -8,6 +8,8 @@ import (
 	"gobackend/models"
 	"log"
 	"net/http"
+
+	"github.com/gofiber/fiber/v3"
 )
 
 type Response struct{
@@ -28,9 +30,11 @@ func InsertUser(user models.User) error{
 }
 
 // insert user , update user, delete user, read user
+
+
 func CreateUser(w http.ResponseWriter, r *http.Request){
-	// w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Allow-Content-Allow-Methods","POST")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Allow-Content-Allow-Methods","POST")
 	fmt.Println("create user")
 	fmt.Println("request: ", r)
 	fmt.Println("the r body", r.Body)
@@ -57,4 +61,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 	}
 	fmt.Println("user created successfully")
 	fmt.Println("User info inserted", response)
+}
+
+func HelloUser(c fiber.Ctx) error{
+	fmt.Print("hi there")
+	return c.SendString("Heelo workd")
 }

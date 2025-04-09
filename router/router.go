@@ -1,17 +1,19 @@
-package router
+// package router
 
-import (
-	"gobackend/controller"
+// import (
+// 	"gobackend/controller"
 
-	"github.com/gorilla/mux"
-)
-
-func Router()*mux.Router{
-	r:= mux.NewRouter()
-	// user router
-	r.HandleFunc("api/createUser",controller.CreateUser).Methods("POST")
-	// r.HandleFunc("/tea", ).Methods("GET")
 	
-	return r
-}
+// 	 "github.com/gofiber/fiber/v3"
+// )
+
+// func Router()*fiber.Ctx{
+// 	app:= fiber.New()
+// 	// user router
+// 	app.Get("api/helloUser", controller.HelloUser)
+// 	// app.Post("api/createUser",controller.CreateUser)
+// 	// r.HandleFunc("/tea", ).Methods("GET")
+// 	app.Listen(":5000")
+	
+// }
 
