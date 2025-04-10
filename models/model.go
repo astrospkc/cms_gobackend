@@ -9,6 +9,13 @@ type User struct {
 	Password string `json:"password"`
 }
 
+type Category struct {
+	Blogs   *Blog	`json:"blog"`
+	Links	string	`json:"links"`
+	Photos	string	`json:"photos"`
+	Files	string 	`json:"files"`
+}
+
 type Blog struct {
 	UserId string	 `json:"user_id"`
 	Title string	 `json:"title"`
@@ -27,12 +34,6 @@ type Github struct {
 
 }
 
-type Sketches struct {
-    UserId		string	`json:"user_id"`
-    Name      string    `json:"name"`
-    URL       string    `json:"url"`
-    UploadedAt time.Time `json:"uploaded_at"`
-}
 
 type Designs struct {
 	UserId		string	`json:"user_id"`
@@ -40,9 +41,18 @@ type Designs struct {
 	Image_URL	string	`json:"image_url"`
 	File_URL	string	`json:"file_url"`
 }
-type Tea struct {
-	Type     string
-	Category string
-	Toppings []string
-	Price    float32
+
+
+type CollectionList struct {
+	Name	string
+	Category *Category
+
 }
+
+
+
+type Links struct {
+	Name	string		`json:"name"`
+	Links	string		`json:"link"`
+}
+type
