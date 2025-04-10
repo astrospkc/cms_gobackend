@@ -1,4 +1,4 @@
 ## One-Go
 
 ### Todos
-![the schema design](image/first.png)
+![the schema design](image/second.png)
