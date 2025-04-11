@@ -12,16 +12,18 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // TODO: later on add Project , category , links, blog, media, resume, subscription, usersubscription, apikey , all of these in UserResponse
 type UserResponse struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	ProfilePic string `json:"profile_pic,omitempty"`
-	Role 		string	`json:"role"`
+	ID    primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name string `bson:"name" json:"name"`
+	Email string `bson:"email" json:"email"`
+	ProfilePic string `bson:"profile_pic,omitempty" json:"profile_pic"`
+	Role 		string	`bson:"role" json:"role"`
 	
 }
 
@@ -199,6 +201,7 @@ func GetUser() fiber.Handler{
 				"error":"NO user with this email",
 			})
 		}
+		fmt.Println(foundUser)
 		return c.JSON(foundUser)
 	}
 }
