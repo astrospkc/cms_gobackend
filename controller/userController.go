@@ -7,6 +7,7 @@ import (
 	"gobackend/models"
 	"log"
 	"os"
+	"reflect"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,17 +16,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO: later on add Project , category , links, blog, media, resume, subscription, usersubscription, apikey , all of these in UserResponse
+type UserResponse struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	ProfilePic string `json:"profile_pic,omitempty"`
+	Role 		string	`json:"role"`
+	
+}
+
 type Response struct{
 	Token   string   `json:"token"`
 	User		models.User `json:"user"`
 }
-type Person struct {
-    Name string `json:"name" xml:"name" form:"name"`
-    Pass string `json:"pass" xml:"pass" form:"pass"`
-}
 
+// var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
-var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
 // first createtoken
 func CreateToken(userid string) (string, error){
@@ -36,16 +42,14 @@ func CreateToken(userid string) (string, error){
 		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
 		"iat": time.Now().Unix(),                 // Issued at
 	})
-
-	tokenString, err := claims.SignedString(secretKey)
+	secret :=[]byte(os.Getenv("JWT_SECRET"))
+	tokenString, err := claims.SignedString(secret)
 	if err!=nil{
 		return "", err
 	}
 	fmt.Printf("Token claims added: %+v\n", claims)
 	return tokenString, nil
 }
-
-
 
 // insert user , update user, delete user, read user
 
@@ -90,11 +94,14 @@ func CreateUser() fiber.Handler {
 		fmt.Println("user: ", user)
 		inserted,err := connect.UsersCollection.InsertOne(context.Background(), user)
 		if err!=nil{
-			log.Fatal("looks like user can't be created", err)
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "looks like email address is already in use",
+			})
 			
 		}
-		fmt.Println("inserted user: ", inserted.InsertedID)
-		tokenString,err := CreateToken(d.Name)
+		fmt.Println("inserted user: ", reflect.TypeOf(inserted.InsertedID))
+		
+		tokenString,err := CreateToken(d.Email)
 		if err!=nil{
 			log.Println("failed to create token")
 		}
@@ -117,9 +124,9 @@ func CreateUser() fiber.Handler {
 }
 
 
-
 func Login() fiber.Handler{
 	return func(c *fiber.Ctx) error{
+		
 		var d models.User
 		if err := c.BodyParser(&d); err !=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -146,7 +153,7 @@ func Login() fiber.Handler{
 				"error":"Password is incorrect, please try once more",
 			})
 		}
-		tokenString, err := CreateToken(user.Name)
+		tokenString, err := CreateToken(d.Email)
 		if err!=nil{
 			log.Println("failed to create token")
 		}
@@ -167,4 +174,32 @@ func Login() fiber.Handler{
 	}
 }
 
+
+func GetUser() fiber.Handler{
+	return func(c *fiber.Ctx) error {
+		user := c.Locals("user")
+		claims,ok := user.(jwt.MapClaims)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid JWT claims format",
+			})
+		}
+		email, ok := claims["aud"].(string)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid or missing  aud field",
+			})
+		}
+		
+		// check this email exist or not , and if exist , then provide the user details with every field 
+		var foundUser UserResponse
+		err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":email}).Decode(&foundUser)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"NO user with this email",
+			})
+		}
+		return c.JSON(foundUser)
+	}
+}
 // from user response , please remove password section

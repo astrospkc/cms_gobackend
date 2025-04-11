@@ -7,6 +7,20 @@ type User struct {
 	Email string `json:"email"`
 	ProfilePic string `json:"profile_pic,omitempty"`
 	Password string `json:"password"`
+	Role 		string	`json:"role"`
+	
+}
+
+type Project struct{
+	
+	UserId		string 	`json:"user_id"`
+	Title		string	`json:"title"`
+	Description	string	`json:"description"`
+	Tags		string	`json:"tags,omitempty"`
+	Thumbnail 	string	`json:"thumbnail,omitempty"`
+	GithubLink	string	`json:"githublink,omitempty"`
+	LiveDemoLink string	`json:"liveddemolink,omitempty"`
+	CreatedAt	time.Time	`json:"time"`
 }
 
 type Category struct {
@@ -16,43 +30,63 @@ type Category struct {
 	Files	string 	`json:"files"`
 }
 
-type Blog struct {
-	UserId string	 `json:"user_id"`
-	Title string	 `json:"title"`
-	Desc string 	`json:"desc"`
-	Link string 	`json:"link"`
-    UploadedAt time.Time `json:"uploaded_at"`
-
-}
-
-type Github struct {
+type Blog struct{
+	
 	UserId		string 	`json:"user_id"`
-	ProjectName string	`json:"project_name"`
-	Desc		string	`json:"desc"`
-	Link		string	`json:"link"`
-    UploadedAt time.Time `json:"uploaded_at"`
-
-}
-
-
-type Designs struct {
-	UserId		string	`json:"user_id"`
 	Title		string	`json:"title"`
-	Image_URL	string	`json:"image_url"`
-	File_URL	string	`json:"file_url"`
+	Content		string	`json:"content"`
+	Tags		string	`json:"tags,omitempty"`
+	CoverImage 	string	`json:"coverImage,omitempty"`
+	Published 	time.Time	`json:"published "`
+	CreatedAt	time.Time	`json:"time"`
 }
 
+type Media struct{
+	
+	UserId		string 	`json:"user_id"`
+	FileUrl		string	`json:"fileurl"`
+	Type		string	`json:"content"` 
+	FileName	string	`json:"filename"`
+	CreatedAt	time.Time	`json:"time"`
+}
+// type (image, video, audio, doc, pdf, etc.)
+type Link struct{
+	
+	UserId		string 	`json:"user_id"`
+	Title		string	`json:"title"`
+	Url		string	`json:"url"` 
+	Description	string	`json:"description"`
+	Category	string	`json:"category"`
+}
+// category (e.g., Social, Project, Resume)
 
-type CollectionList struct {
-	Name	string
-	Category *Category
-
+type Resume struct {
+	UserId 		string	`json:"user_id"`
+	FileUrl		string	`json:"fileurl"`
+	UploadData	time.Time	`json:"uploadDate"`
 }
 
-
-
-type Links struct {
+type SubscriptionPlan struct {
 	Name	string		`json:"name"`
-	Links	string		`json:"link"`
+	Price 	string		`json:"price"`
+	Features []string	`json:"features"`
+	Duration string		`json:"duration"`
 }
-type
+
+type UserSubscription struct {
+	Userid	string	`json:"user_id"`
+	PlanId 	string	`json:"plan_id"`
+	StartDate	time.Time	`json:"startDate"`
+	EndDate		time.Time	`json:"endData"`
+	Status	string	`json:"status"`
+}
+
+// status- active or expired
+type APIkey struct{
+	Userid		string	`json:"user_id"`
+	Key 		string	`json:"key"`
+	UsageLimit	string	`json:"usagelimit"`
+	CreatedAt	time.Time	`json:"createdat"`
+	Revoked		bool	`json:"revoked"`
+	
+}
