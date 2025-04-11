@@ -19,11 +19,11 @@ import (
 
 // TODO: later on add Project , category , links, blog, media, resume, subscription, usersubscription, apikey , all of these in UserResponse
 type UserResponse struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name string `bson:"name" json:"name"`
-	Email string `bson:"email" json:"email"`
-	ProfilePic string `bson:"profile_pic,omitempty" json:"profile_pic"`
-	Role 		string	`bson:"role" json:"role"`
+	Id   primitive.ObjectID `json:"id"`
+	Name string `json:"name"`
+	Email string `json:"email"`
+	ProfilePic string `json:"profile_pic,omitempty"`
+	Role 		string	`json:"role"`
 	
 }
 
@@ -88,6 +88,7 @@ func CreateUser() fiber.Handler {
 			d.ProfilePic = "https://cdn.example.com/default-avatar.png"
 		}
 		user := models.User{
+			Id:primitive.NewObjectID(),
 			Name:d.Name,
 			Email:d.Email,
 			ProfilePic: d.ProfilePic,
