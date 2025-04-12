@@ -194,16 +194,27 @@ func GetUser() fiber.Handler{
 			})
 		}
 		
-		// check this email exist or not , and if exist , then provide the user details with every field 
-		var foundUser UserResponse
-		err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":email}).Decode(&foundUser)
-		if err!=nil{
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"NO user with this email",
-			})
+		user_info,err := GetUserViaEmail(email)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
 		}
-		fmt.Println(foundUser)
-		return c.JSON(foundUser)
+		return c.JSON(user_info)
+
+		
 	}
 }
-// from user response , please remove password section
+
+
+
+// getting user details by email id
+func GetUserViaEmail(email string) (UserResponse, error)  {
+
+	var foundUser UserResponse
+	err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":email}).Decode(&foundUser)
+	if err!=nil{
+		log.Fatal("No such email exist")
+	}
+		fmt.Println(reflect.TypeOf(foundUser), foundUser)
+	return foundUser, err
+	
+}

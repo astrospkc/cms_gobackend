@@ -17,6 +17,7 @@ import (
 const (
 	dbName  = "CMS_portfolio"
 	colNameUsers = "users"
+	colNameProjects = "projects"
 	colNameBlogs = "blogs"
 	colNamewebsites = "websites"
 	colNameGithub = "github"
@@ -25,6 +26,7 @@ const (
 )
 
 var UsersCollection *mongo.Collection
+var ProjectCollection *mongo.Collection
 var BlogsCollection *mongo.Collection
 var GithubCollection *mongo.Collection
 var SkectchesCollection *mongo.Collection
@@ -75,13 +77,16 @@ func Connect(){
 		Keys:bson.D{{Key:"email", Value:  -1}},
 		Options:options.Index().SetUnique(true),
 	}
-	email, err :=UsersCollection.Indexes().CreateOne(context.TODO(), indexModel)
+	_, err =UsersCollection.Indexes().CreateOne(context.TODO(), indexModel)
 	if err != nil{
 		
 		log.Fatal("error occured : ", err)
 	}
-	fmt.Println("Name of Index created: " +email)
+	
+
+	ProjectCollection = client.Database(dbName).Collection(colNameProjects)
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
+	
 	GithubCollection = client.Database(dbName).Collection(colNameGithub)
 	TeaCollection = client.Database("CMS_portfolio").Collection("tea")
 	

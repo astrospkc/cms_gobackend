@@ -20,7 +20,7 @@ type Project struct{
 	
 	UserId		string 	`json:"user_id"`
 	Title		string	`json:"title"`
-	Description	string	`json:"description"`
+	Description	string	`json:"description,omitempty"`
 	Tags		string	`json:"tags,omitempty"`
 	Thumbnail 	string	`json:"thumbnail,omitempty"`
 	GithubLink	string	`json:"githublink,omitempty"`
