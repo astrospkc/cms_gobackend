@@ -24,8 +24,14 @@ func main() {
 	app.Post("/api/login", controller.Login())
 	app.Get("/api/getUser",middleware.FetchUser(),  controller.GetUser())
 	
+	
 	// Project section 
 	app.Post("/api/project/createProject", middleware.FetchUser(), controller.CreateProject())
+	app.Put("/api/project/updateProject/:projectid", middleware.FetchUser(), controller.UpdateProject())
+	app.Get("/api/project/readProject", middleware.FetchUser(), controller.ReadProject())
+
+
+
 
 	// app.Post("/api/createUser", controller.CreateUser)
 	app.Listen(":6000")

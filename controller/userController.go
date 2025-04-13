@@ -19,17 +19,29 @@ import (
 
 // TODO: later on add Project , category , links, blog, media, resume, subscription, usersubscription, apikey , all of these in UserResponse
 type UserResponse struct {
-	Id   primitive.ObjectID `json:"id"`
-	Name string `json:"name"`
-	Email string `json:"email"`
-	ProfilePic string `json:"profile_pic,omitempty"`
-	Role 		string	`json:"role"`
+	Id       primitive.ObjectID `bson:"id,omitempty" json:"id"`
+	Name 		string `bson:"name" json:"name"`
+	Email 		string `bson:"email" json:"email"`
+	ProfilePic  string `bson:"profile_pic,omitempty" json:"profile_pic"`
+	Role 		string	`bson:"role" json:"role"`
 	
 }
 
 type Response struct{
 	Token   string   `json:"token"`
 	User		models.User `json:"user"`
+}
+
+
+type Project struct{
+	Id       primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
+	Title		 *string	`bson:"title" json:"title"`
+	Description	 *string	`bson:"description,omitempty" json:"description"`
+	Tags		 *string	`bson:"tags,omitempty" json:"tags"`
+	Thumbnail 	 *string	`bson:"thumbnail,omitempty" json:"thumbnail"`
+	GithubLink	 *string	`bson:"githublink,omitempty" json:"githublink"`
+	LiveDemoLink *string	`bson:"livedemolink,omitempty" json:"liveddemolink"`
+	
 }
 
 // var secretKey = []byte(os.Getenv("JWT_SECRET"))
@@ -87,28 +99,31 @@ func CreateUser() fiber.Handler {
 		if d.ProfilePic == "" {
 			d.ProfilePic = "https://cdn.example.com/default-avatar.png"
 		}
+		hash:= string(hashedPass)
+		
 		user := models.User{
 			Id:primitive.NewObjectID(),
 			Name:d.Name,
 			Email:d.Email,
 			ProfilePic: d.ProfilePic,
-			Password:string(hashedPass) ,
+			Password:hash ,
+			Role:d.Role,
 		}
 		fmt.Println("user: ", user)
-		inserted,err := connect.UsersCollection.InsertOne(context.Background(), user)
+		_,err = connect.UsersCollection.InsertOne(context.Background(), user)
 		if err!=nil{
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "looks like email address is already in use",
 			})
 			
 		}
-		fmt.Println("inserted user: ", reflect.TypeOf(inserted.InsertedID))
+		
 		
 		tokenString,err := CreateToken(d.Email)
 		if err!=nil{
 			log.Println("failed to create token")
 		}
-		fmt.Println(tokenString, "token")
+		
     	c.Cookie(&fiber.Cookie{
 			Name: "token",
 			Value:tokenString,
@@ -141,15 +156,18 @@ func Login() fiber.Handler{
 				"error":"Email and Password are required",
 			})
 		}
+
+		
 		var user models.User
-		err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":d.Email}).Decode(&user)
+		err:= connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":d.Email}).Decode(&user)
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error":"NO user with this email",
 			})
 		}
 		fmt.Println("user: ", user)
-		password := []byte(d.Password)
+		pass := d.Password
+		password := []byte(pass)
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password),password )
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -208,7 +226,7 @@ func GetUser() fiber.Handler{
 
 // getting user details by email id
 func GetUserViaEmail(email string) (UserResponse, error)  {
-
+	fmt.Println("users_email: ", email)
 	var foundUser UserResponse
 	err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":email}).Decode(&foundUser)
 	if err!=nil{
