@@ -36,7 +36,7 @@ type Category struct {
 }
 
 type Blog struct{
-	
+	Id           primitive.ObjectID `bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
 	Title		string	`bson:"title" json:"title"`
 	Content		string	`bson:"content" json:"content"`
