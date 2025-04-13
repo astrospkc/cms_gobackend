@@ -202,63 +202,53 @@ func UpdateProject() fiber.Handler {
 	}
 }
 
-// func UpdateProject() fiber.Handler{
+func FindOneViaPID() fiber.Handler{
+	return func(c *fiber.Ctx) error{
+		p_id:= c.Params("projectid")
+		if p_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Please provide project id",
+			})
+		}
+		objID, err := primitive.ObjectIDFromHex(p_id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID format",})
+		}
 	
-// 	return func(c *fiber.Ctx) error {
-// 		user := c.Locals("user")
-// 		claims,ok := user.(jwt.MapClaims)
-// 		if !ok {
-// 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-// 				"error": "Invalid JWT claims format",
-// 			})
-// 		}
-// 		email, ok := claims["aud"].(string)
-// 		if !ok {
-// 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-// 				"error": "Invalid or missing  aud field",
-// 			})
-// 		}
-
-// 		var update models.Project
-// 		if err := c.BodyParser(&update); err!=nil{
-// 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 				"error":"Invalid request body",
-// 			})
-// 		}
-
-// 		user_info,err := GetUserViaEmail(email)
-// 		if err != nil {
-// 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
-// 		}
-// 		project := models.Project{
-// 			UserId: user_info.Id.Hex(),
-// 			Title: update.Title,
-// 			Description: update.Description,
-// 			Tags:update.Tags,
-// 			Thumbnail: update.Thumbnail,
-// 			GithubLink: update.GithubLink,
-// 			LiveDemoLink: update.LiveDemoLink,
-// 		}
-// 		filer := bson.M{"_id":user_info.Id}
-// 		result, err := connect.BlogsCollection.UpdateByID(context.TODO(), filer, project)
-// 		if err!=nil{
-// 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-// 				"error": "Failed to update project",
-// 			})
-// 		}
-
-// 		if result.MatchedCount==0{
-// 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-// 				"error": "Project not found",
-// 			})
-// 		}
-// 		return c.JSON(result)
-// 		// return c.JSON(fiber.Map{
-// 		// 	"success": "Blog updated successfully",
-// 		// })
-// 	}
-// }
+		var project ProjectUpdate
+		err = connect.ProjectCollection.FindOne(context.TODO(), bson.M{"id": objID} ).Decode(&project)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Failed to find the project with this project id, try with valid project id",
+			})
+		}
+		return c.JSON(project)
 
 
+	}
+}
 
-// func DeleteProject() fiber.Handler{}
+func DeleteProject() fiber.Handler{
+	return func(c *fiber.Ctx) error{
+		// get the project id
+		p_id:= c.Params("projectid")
+		if p_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Please provide project id",
+			})
+		}
+		objId, err := primitive.ObjectIDFromHex(p_id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID format",})
+		}
+
+		filter := bson.M{"id":objId}
+		
+		result, err := connect.ProjectCollection.DeleteOne(context.TODO(),filter)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"eror":"Project was not deleted successful"})
+		}
+
+		return c.JSON(result)
+	}
+}

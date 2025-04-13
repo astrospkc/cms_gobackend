@@ -29,6 +29,12 @@ func main() {
 	app.Post("/api/project/createProject", middleware.FetchUser(), controller.CreateProject())
 	app.Put("/api/project/updateProject/:projectid", middleware.FetchUser(), controller.UpdateProject())
 	app.Get("/api/project/readProject", middleware.FetchUser(), controller.ReadProject())
+	app.Get("/api/project/readProjectWithId/:projectid", middleware.FetchUser(), controller.FindOneViaPID())
+	app.Delete("/api/project/deleteProject/:projectid", middleware.FetchUser(), controller.DeleteProject())
+
+
+	
+
 
 
 

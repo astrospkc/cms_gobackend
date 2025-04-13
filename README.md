@@ -4,7 +4,10 @@
 - [X] Build schemas for User, project, blog, media,link,resume,videocontent,
 - [X] Payment schemas- subscriptionPlan, usersubscription, Security/ api key schema- apikey
 - [X] make routes for user(CRUD)
-- [ ] getuser, CRUD for projects, github links, links, media, usersubscription, apikey, blog category
+- [X] getuser, CRUD for projects, github links, links, media, usersubscription, apikey, blog category
 - [ ] add aws s3 for file uploads
-- [ ] read about security field to network rewuest
+- [ ] read about security field to network request
+- [ ] login page, signup , dashboard the frontend part.
+- [ ] payment intergration 
+- [ ] api key integration
 
