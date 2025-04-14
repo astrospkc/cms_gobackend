@@ -43,7 +43,20 @@ func main() {
 	app.Put("/api/blog/updateBlog/:blogid", middleware.FetchUser(), controller.UpdateBlogWithBlogId())
 	app.Delete("/api/blog/deleteBlog/:blogid", middleware.FetchUser(), controller.DeleteBlog())
 
+	// Link section
+	// this section can be made as your second brain
+	app.Post("/api/link/createLink", middleware.FetchUser(), controller.CreateLink())
+	app.Get("/api/link/readLink", middleware.FetchUser(), controller.ReadLink())
+	app.Get("/api/link/readLink/:linkid", middleware.FetchUser(), controller.ReadLinkWithLinkId())
+	app.Put("/api/link/updateLink/:linkid", middleware.FetchUser(), controller.UpdateLinkWithLinkId())
+	app.Delete("/api/link/deleteLink/:linkid", middleware.FetchUser(), controller.DeleteLinkWithLinkId())
+	app.Delete("/api/link/deleteAllLink", middleware.FetchUser(), controller.DeleteAllLinks())
 
+
+
+
+
+	
 
 
 

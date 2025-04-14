@@ -31,8 +31,8 @@ type Project struct{
 type Category struct {
 	Blogs   Blog	`bson:"blog" json:"blog"`
 	Links	string	`bson:"links" json:"links"`
-	Photos	string	`bson:"photos" json:"photos"`
-	Files	string 	`bson:"files" json:"files"`
+	Media	string	`bson:"media" json:"media"`
+	Resume	string 	`bson:"resume" json:"resume"`
 }
 
 type Blog struct{
@@ -47,7 +47,7 @@ type Blog struct{
 }
 
 type Media struct{
-	
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
 	FileUrl		string	`bson:"fileurl" json:"fileurl"`
 	Type		string	`bson:"content" json:"content"` 
@@ -56,22 +56,25 @@ type Media struct{
 }
 // type (image, video, audio, doc, pdf, etc.)
 type Link struct{
-	
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
-	Title		string	`bson:"title" json:"title"`
+	Source		string	`bson:"source,omitempty" json:"source"`
+	Title		string	`bson:"title,omitempty" json:"title"`
 	Url			string	`bson:"url" json:"url"` 
-	Description	string	`bson:"description" json:"description"`
-	Category	string	`bson:"category" json:"category"`
+	Description	string	`bson:"description,omitempty" json:"description"`
+	Category	string	`bson:"category,omitempty" json:"category"`
 }
 // category (e.g., Social, Project, Resume)
 
 type Resume struct {
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId 		string	`bson:"user_id" json:"user_id"`
 	FileUrl		string	`bson:"fileurl" json:"fileurl"`
 	UploadData	time.Time	`bson:"uploadData" json:"uploadData"`
 }
 
 type SubscriptionPlan struct {
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	Name		string		`bson:"name" json:"name"`
 	Price 		string		`bson:"price" json:"price"`
 	Features 	[]string	`bson:"features" json:"features"`
@@ -79,6 +82,7 @@ type SubscriptionPlan struct {
 }
 
 type UserSubscription struct {
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	Userid		string		`bson:"user_id" json:"user_id"`
 	PlanId 		string		`bson:"plan_id" json:"plan_id"`
 	StartDate	time.Time	`bson:"startDate" json:"startDate"`
@@ -88,6 +92,7 @@ type UserSubscription struct {
 
 // status- active or expired
 type APIkey struct{
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	Userid		string	`bson:"user_id" json:"user_id"`
 	Key 		string	`bson:"key" json:"key"`
 	UsageLimit	string	`bson:"usagelimit" json:"usagelimit"`

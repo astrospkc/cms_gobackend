@@ -60,3 +60,6 @@ title:"what the hell"
 description:"description of the body"
 time:0001-01-01T00:00:00.000+00:00
 }
+
+Q. Id 	primitive.ObjectID	`bson:"id,omitempty" json:"id"`
+In this above formate, why the format is like this ? Find the reason

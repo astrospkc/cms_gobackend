@@ -19,7 +19,7 @@ const (
 	colNameUsers = "users"
 	colNameProjects = "projects"
 	colNameBlogs = "blogs"
-	colNamewebsites = "websites"
+	colNameLinks = "links"
 	colNameGithub = "github"
 	colNameSketches ="sketches"
 	colNameDesigns  ="designs"
@@ -28,6 +28,7 @@ const (
 var UsersCollection *mongo.Collection
 var ProjectCollection *mongo.Collection
 var BlogsCollection *mongo.Collection
+var LinksCollection *mongo.Collection
 var GithubCollection *mongo.Collection
 var SkectchesCollection *mongo.Collection
 var DesignsCollection *mongo.Collection
@@ -86,7 +87,7 @@ func Connect(){
 
 	ProjectCollection = client.Database(dbName).Collection(colNameProjects)
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
-	
+	LinksCollection = client.Database(dbName).Collection(colNameLinks)
 	GithubCollection = client.Database(dbName).Collection(colNameGithub)
 	TeaCollection = client.Database("CMS_portfolio").Collection("tea")
 	
