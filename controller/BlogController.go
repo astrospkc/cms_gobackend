@@ -10,10 +10,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type Blog struct{
-	
+	Id 			primitive.ObjectID	`bson:"id" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
 	Title		string	`bson:"title" json:"title"`
 	Content		string	`bson:"content" json:"content"`
@@ -117,6 +119,109 @@ func ReadBlog() fiber.Handler{
 		return c.JSON(blogs)
 	}
 }
-// func ReadBlogWIthId() fiber.Handler{}
-// func UpdateBlogWithEmail() fiber.Handler{}
-// func DeleteBlog() fiber.Handler{}
+func ReadBlogWIthId() fiber.Handler{
+	return func(c *fiber.Ctx) error {
+		p_id:= c.Params("blogid")
+		if p_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Please provide project id",
+			})
+		}
+		objID, err := primitive.ObjectIDFromHex(p_id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID format",})
+		}
+
+		var blog Blog
+		err = connect.BlogsCollection.FindOne(context.TODO(), bson.M{"id":objID}).Decode(&blog)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Failed to find the blogs with given id",
+			})
+		}
+		return c.JSON(blog)
+	}
+}
+
+
+func setBlog(upd *Blog) (bson.M, error){
+	data, err := bson.Marshal(upd)
+	if err!=nil{
+		return nil, err
+	}
+	var m bson.M
+	if err:= bson.Unmarshal(data, &m); err!=nil{
+		return nil, err
+	}
+	return m, nil
+}
+func UpdateBlogWithBlogId() fiber.Handler{
+	return func(c *fiber.Ctx) error {
+		b_id := c.Params("blogid")
+		if b_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Please provide blog id",
+			})
+		}
+
+		var upd Blog
+		if err := c.BodyParser(&upd); err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"invalid JSON",
+			})
+		}
+
+		setBlog, err := setBlog(&upd)
+		if err != nil {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to prepare update"})
+        }
+        if len(setBlog) == 0 {
+            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No fields provided to update"})
+        }
+
+		objId, err := primitive.ObjectIDFromHex(b_id)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Failed to convert in primitive type",
+			})
+		}
+
+		filter := bson.M{"id":objId} 
+		update:= bson.M{"$set":setBlog}
+		opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+		
+		var updatedBlog models.Blog
+		err = connect.BlogsCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updatedBlog)
+		if err !=nil{
+			if err ==mongo.ErrNoDocuments{
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error":"Blog not found"})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Update failed"})
+		}
+		return c.JSON(updatedBlog)
+	}
+}
+func DeleteBlog() fiber.Handler{
+	return func(c *fiber.Ctx) error {
+		p_id:= c.Params("blogid")
+		if p_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Please provide blog id",
+			})
+		}
+		objId, err := primitive.ObjectIDFromHex(p_id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Blog ID format",})
+		}
+
+		filter := bson.M{"id":objId}
+		
+		result, err := connect.BlogsCollection.DeleteOne(context.TODO(),filter)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"eror":"Blog was not deleted successful"})
+		}
+
+		return c.JSON(result)
+
+	}
+}

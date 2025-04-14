@@ -39,6 +39,11 @@ func main() {
 
 	app.Post("/api/blog/createBlog", middleware.FetchUser(), controller.CreateBlog())
 	app.Get("/api/blog/readBlog", middleware.FetchUser(), controller.ReadBlog())
+	app.Get("/api/blog/readBlog/:blogid", middleware.FetchUser(), controller.ReadBlogWIthId())
+	app.Put("/api/blog/updateBlog/:blogid", middleware.FetchUser(), controller.UpdateBlogWithBlogId())
+	app.Delete("/api/blog/deleteBlog/:blogid", middleware.FetchUser(), controller.DeleteBlog())
+
+
 
 
 

@@ -172,16 +172,16 @@ func UpdateProject() fiber.Handler {
 		}
 
 
-		fmt.Println("object Id: ", objId)
-		// lets find first to check it is actually working or not
-		var foundProj models.Project
-		err = connect.ProjectCollection.FindOne(context.TODO(),bson.M{"id":objId}).Decode(&foundProj)
-		if err!=nil{
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"Could not find the project",
-			})
-		}
-		fmt.Println("foundProj: ", foundProj)
+		// fmt.Println("object Id: ", objId)
+		// // lets find first to check it is actually working or not
+		// var foundProj models.Project
+		// err = connect.ProjectCollection.FindOne(context.TODO(),bson.M{"id":objId}).Decode(&foundProj)
+		// if err!=nil{
+		// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		// 		"error":"Could not find the project",
+		// 	})
+		// }
+		// fmt.Println("foundProj: ", foundProj)
 
 
 		fmt.Printf("pid: %T \n", objId)
