@@ -13,6 +13,7 @@ type User struct {
 	ProfilePic  string `bson:"profile_pic,omitempty" json:"profile_pic"`
 	Password 	string `bson:"password" json:"password"`
 	Role 		string	`bson:"role" json:"role"`
+	APIkey		string  `bson:"api_key" json:"api_key"`
 	
 }
 
@@ -95,7 +96,7 @@ type APIkey struct{
 	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	Userid		string	`bson:"user_id" json:"user_id"`
 	Key 		string	`bson:"key" json:"key"`
-	UsageLimit	string	`bson:"usagelimit" json:"usagelimit"`
+	UsageLimit	int64	`bson:"usagelimit" json:"usagelimit"`
 	CreatedAt	time.Time	`bson:"createdat" json:"createdat"`
 	Revoked		bool	`bson:"revoked" json:"revoked"`
 	

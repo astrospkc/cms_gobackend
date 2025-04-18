@@ -11,3 +11,9 @@
 - [ ] payment intergration 
 - [ ] api key integration
 
+###### Flow: Login with Email + Email Confirmation
+- User enters email on frontend
+- Backend generates a one-time token or link
+- Token is emailed to the user
+- User clicks the link (or enters the token)
+- Backend verifies the token and logs them in

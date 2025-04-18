@@ -23,6 +23,7 @@ const (
 	colNameGithub = "github"
 	colNameSketches ="sketches"
 	colNameDesigns  ="designs"
+	colNameAPI  = "apikey"
 )
 
 var UsersCollection *mongo.Collection
@@ -33,6 +34,7 @@ var GithubCollection *mongo.Collection
 var SkectchesCollection *mongo.Collection
 var DesignsCollection *mongo.Collection
 var TeaCollection *mongo.Collection
+var APIKeyCollection *mongo.Collection
 
 
 func Connect(){
@@ -89,7 +91,8 @@ func Connect(){
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
 	LinksCollection = client.Database(dbName).Collection(colNameLinks)
 	GithubCollection = client.Database(dbName).Collection(colNameGithub)
-	TeaCollection = client.Database("CMS_portfolio").Collection("tea")
+	APIKeyCollection = client.Database(dbName).Collection(colNameAPI)
+	// TeaCollection = client.Database("CMS_portfolio").Collection("tea")
 	
 	// insert tea database
 

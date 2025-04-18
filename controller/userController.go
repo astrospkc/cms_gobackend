@@ -24,10 +24,12 @@ type UserResponse struct {
 	Email 		string `bson:"email" json:"email"`
 	ProfilePic  string `bson:"profile_pic,omitempty" json:"profile_pic"`
 	Role 		string	`bson:"role" json:"role"`
+	APIkey		string  `bson:"api_key" json:"api_key"`
 	
 }
 
 type Response struct{
+	
 	Token   string   `json:"token"`
 	User		models.User `json:"user"`
 }
@@ -44,9 +46,19 @@ type Project struct{
 	
 }
 
+type APIkey struct{
+	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
+	Userid		string	`bson:"user_id" json:"user_id"`
+	Key 		string	`bson:"key" json:"key"`
+	UsageLimit	string	`bson:"usagelimit" json:"usagelimit"`
+	CreatedAt	time.Time	`bson:"createdat" json:"createdat"`
+	Revoked		bool	`bson:"revoked" json:"revoked"`
+	
+}
+
 // var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
-
+var Secret =[]byte(os.Getenv("JWT_SECRET"))
 // first createtoken
 func CreateToken(userid string) (string, error){
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -56,8 +68,8 @@ func CreateToken(userid string) (string, error){
 		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
 		"iat": time.Now().Unix(),                 // Issued at
 	})
-	secret :=[]byte(os.Getenv("JWT_SECRET"))
-	tokenString, err := claims.SignedString(secret)
+	
+	tokenString, err := claims.SignedString(Secret)
 	if err!=nil{
 		return "", err
 	}
@@ -65,10 +77,18 @@ func CreateToken(userid string) (string, error){
 	return tokenString, nil
 }
 
-// insert user , update user, delete user, read user
+
+
 
 func CreateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+
+		apikey,err:= GenerateApiKey()
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Failed to generate key",
+			})
+		}
 
     	var d models.User
     	if err := c.BodyParser(&d); err!=nil{
@@ -108,6 +128,7 @@ func CreateUser() fiber.Handler {
 			ProfilePic: d.ProfilePic,
 			Password:hash ,
 			Role:d.Role,
+			APIkey: apikey,
 		}
 		fmt.Println("user: ", user)
 		_,err = connect.UsersCollection.InsertOne(context.Background(), user)
@@ -132,6 +153,15 @@ func CreateUser() fiber.Handler {
 			Path:"/",
 			MaxAge: 3600,
 		})
+
+		_ = models.APIkey{
+			Id: primitive.NewObjectID(),
+			Userid: user.Id.Hex(),
+			Key: apikey,
+			UsageLimit: 50,
+		}
+
+		
 		
 		resp := &Response{
 			Token:tokenString,
