@@ -29,7 +29,19 @@ func main() {
 	routes.RegisterNormalRoutes(app)
 	routes.RegisterAPIKeyRoutes(app)
 
+	// url, err := services.CreatePresignedURL("cms-one-go", "image.jpg")
 
+	// if err != nil {
+	// 	log.Fatalf("Failed to generate URL: %v", err)
+	// }
+	// fmt.Println("Presigned URL:", url)
+
+	// geturl, err := services.GetPresignedGetUrl("cms-one-go", "image.jpg")
+
+	// if err != nil {
+	// 	log.Fatalf("Failed to generate URL: %v", err)
+	// }
+	// fmt.Println("Presigned URL:", geturl)
 
 
 

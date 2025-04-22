@@ -3,19 +3,24 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	// "github.com/joho/godotenv"
 )
 
+// func init() {
+// 	err := godotenv.Load()
+// 	if err != nil {
+// 		log.Fatal("Error loading .env file")
+// 	}
+// }
 
-
-func CreatePresignedURL(bucketName, fileKey string ) (string, error) {
-	// Load AWS config with static credentials
-	fmt.Println("get env",os.Getenv("AWS_ACCESS_KEY_ID"))
+func GetPresignedGetUrl(bucketName, fileKey string) (string, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(
@@ -27,24 +32,23 @@ func CreatePresignedURL(bucketName, fileKey string ) (string, error) {
 		),
 	)
 	if err != nil {
-		return "", fmt.Errorf("error loading AWS config: %v", err)
+		return "", fmt.Errorf("unable to load SDK config, %v", err)
 	}
 
 	client := s3.NewFromConfig(cfg)
-
-	// Create presign client
 	presignClient := s3.NewPresignClient(client)
 
-	// Create PutObject presigned request
-	req, err := presignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+	resp, err := presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileKey),
-	},)
-	//  s3.WithPresignExpires(time.Duration(expiresInSeconds)*time.Second)
+	})
+	// , s3.WithPresignExpires(time.Duration(expiresInSeconds)*time.Second)
+
 	if err != nil {
-		return "", fmt.Errorf("error creating presigned URL: %v", err)
+		return "", fmt.Errorf("failed to sign request: %v", err)
 	}
 
-	return req.URL, nil
+	return resp.URL, nil
 }
+
 
