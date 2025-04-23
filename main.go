@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"gobackend/connect"
 	"gobackend/routes"
+	"gobackend/services"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -29,12 +31,12 @@ func main() {
 	routes.RegisterNormalRoutes(app)
 	routes.RegisterAPIKeyRoutes(app)
 
-	// url, err := services.CreatePresignedURL("cms-one-go", "image.jpg")
+	url, err := services.CreatePresignedUrlAndUploadObject("cms-one-go", "img.jpg")
 
-	// if err != nil {
-	// 	log.Fatalf("Failed to generate URL: %v", err)
-	// }
-	// fmt.Println("Presigned URL:", url)
+	if err != nil {
+		log.Fatalf("Failed to generate URL: %v", err)
+	}
+	fmt.Println("Presigned URL:", url)
 
 	// geturl, err := services.GetPresignedGetUrl("cms-one-go", "image.jpg")
 

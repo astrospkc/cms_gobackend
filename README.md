@@ -1,4 +1,4 @@
-## One-Go
+## One-Go (CMS-as-a-service)
 
 ### Todos
 - [X] Build schemas for User, project, blog, media,link,resume,videocontent,
@@ -17,3 +17,5 @@
 - Token is emailed to the user
 - User clicks the link (or enters the token)
 - Backend verifies the token and logs them in
+
+##### Brainstorming phase

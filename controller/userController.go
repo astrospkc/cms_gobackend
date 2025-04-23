@@ -7,7 +7,7 @@ import (
 	"gobackend/models"
 	"log"
 	"os"
-	"reflect"
+
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -58,7 +58,7 @@ type APIkey struct{
 
 // var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
-var Secret =[]byte(os.Getenv("JWT_SECRET"))
+
 // first createtoken
 func CreateToken(userid string) (string, error){
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -68,8 +68,8 @@ func CreateToken(userid string) (string, error){
 		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
 		"iat": time.Now().Unix(),                 // Issued at
 	})
-	
-	tokenString, err := claims.SignedString(Secret)
+	secret :=[]byte(os.Getenv("JWT_SECRET"))
+	tokenString, err := claims.SignedString(secret)
 	if err!=nil{
 		return "", err
 	}
@@ -255,14 +255,3 @@ func GetUser() fiber.Handler{
 
 
 // getting user details by email id
-func GetUserViaEmail(email string) (UserResponse, error)  {
-	fmt.Println("users_email: ", email)
-	var foundUser UserResponse
-	err := connect.UsersCollection.FindOne(context.TODO(), bson.M{"email":email}).Decode(&foundUser)
-	if err!=nil{
-		log.Fatal("No such email exist")
-	}
-		fmt.Println(reflect.TypeOf(foundUser), foundUser)
-	return foundUser, err
-	
-}

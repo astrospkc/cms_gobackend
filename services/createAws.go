@@ -3,48 +3,53 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/joho/godotenv"
 )
 
+func CreatePresignedUrlAndUploadObject(bucketName string , key string) (string, error){
+	err := godotenv.Load(".env.prod") // or ".env.prod"
+	if err != nil {
+		log.Fatal("Error loading env file")
+	}
 
+	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
-func CreatePresignedURL(bucketName, fileKey string ) (string, error) {
-	// Load AWS config with static credentials
-	fmt.Println("get env",os.Getenv("AWS_ACCESS_KEY_ID"))
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
-		config.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(
-				os.Getenv("AWS_ACCESS_KEY_ID"),
-				os.Getenv("AWS_SECRET_ACCESS_KEY"),
-				"",
-			),
-		),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
 	)
 	if err != nil {
-		return "", fmt.Errorf("error loading AWS config: %v", err)
+		log.Fatal("failed to load config:", err)
 	}
 
 	client := s3.NewFromConfig(cfg)
 
-	// Create presign client
 	presignClient := s3.NewPresignClient(client)
 
-	// Create PutObject presigned request
-	req, err := presignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+	params := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(fileKey),
-	},)
-	//  s3.WithPresignExpires(time.Duration(expiresInSeconds)*time.Second)
-	if err != nil {
-		return "", fmt.Errorf("error creating presigned URL: %v", err)
+		Key:    aws.String(key),
+		ACL: "public-read",
+	
 	}
 
-	return req.URL, nil
-}
+	presignedURL, err := presignClient.PresignPutObject(context.TODO(), params, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Hour // expires in 1 hour
+	})
+	if err != nil {
+		log.Fatal("failed to generate presigned URL:", err)
+	}
 
+	fmt.Println("Presigned URL:", presignedURL.URL)
+	return presignedURL.URL, nil
+}

@@ -17,6 +17,14 @@ type User struct {
 	
 }
 
+type Collection struct{
+	Id       primitive.ObjectID `bson:"id,omitempty" json:"id"`
+	UserId		 primitive.ObjectID 	`bson:"user_id" json:"user_id"`
+	Title 		string `bson:"title" json:"title"`
+	Description	string `bson:"description" json:"description"`
+	CreatedAt	time.Time	`bson:"time" json:"time"`
+}
+
 type Project struct{
 	Id           primitive.ObjectID `bson:"id,omitempty" json:"id"`
 	UserId		 primitive.ObjectID 	`bson:"user_id" json:"user_id"`

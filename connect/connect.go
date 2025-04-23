@@ -16,6 +16,7 @@ import (
 
 const (
 	dbName  = "CMS_portfolio"
+	colCollection = "collections"
 	colNameUsers = "users"
 	colNameProjects = "projects"
 	colNameBlogs = "blogs"
@@ -27,6 +28,7 @@ const (
 )
 
 var UsersCollection *mongo.Collection
+var ColCollection    *mongo.Collection
 var ProjectCollection *mongo.Collection
 var BlogsCollection *mongo.Collection
 var LinksCollection *mongo.Collection
@@ -38,7 +40,7 @@ var APIKeyCollection *mongo.Collection
 
 
 func Connect(){
-	err:=godotenv.Load()
+	err:=godotenv.Load(".env.prod")
 	if err!=nil{
 		log.Fatal("Error handling .env file")
 	}
@@ -86,7 +88,7 @@ func Connect(){
 		log.Fatal("error occured : ", err)
 	}
 	
-
+	ColCollection  = client.Database(dbName).Collection(colCollection)
 	ProjectCollection = client.Database(dbName).Collection(colNameProjects)
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
 	LinksCollection = client.Database(dbName).Collection(colNameLinks)
