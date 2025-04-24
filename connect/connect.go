@@ -35,7 +35,6 @@ var LinksCollection *mongo.Collection
 var GithubCollection *mongo.Collection
 var SkectchesCollection *mongo.Collection
 var DesignsCollection *mongo.Collection
-var TeaCollection *mongo.Collection
 var APIKeyCollection *mongo.Collection
 
 
@@ -89,12 +88,49 @@ func Connect(){
 	}
 	
 	ColCollection  = client.Database(dbName).Collection(colCollection)
+	indexModel =mongo.IndexModel{
+		Keys: bson.D{
+			{Key:"user_id",Value:1},
+			{Key:"title", Value: 1},
+		},
+		Options:options.Index().SetUnique(true),
+	}
+	_, err = ColCollection.Indexes().CreateOne(context.TODO(),indexModel)
+	if err!=nil{
+		log.Fatal("error occurred: ", err)
+	}
+
 	ProjectCollection = client.Database(dbName).Collection(colNameProjects)
+	indexModel =mongo.IndexModel{
+		Keys: bson.D{
+			{Key:"user_id",Value:1},
+			{Key:"title", Value: 1},
+		},
+		Options:options.Index().SetUnique(true),
+	}
+	_, err = ProjectCollection.Indexes().CreateOne(context.TODO(),indexModel)
+	if err!=nil{
+		log.Fatal("error occurred: ", err)
+	}
 	BlogsCollection = client.Database(dbName).Collection(colNameBlogs)
 	LinksCollection = client.Database(dbName).Collection(colNameLinks)
 	GithubCollection = client.Database(dbName).Collection(colNameGithub)
 	APIKeyCollection = client.Database(dbName).Collection(colNameAPI)
-	// TeaCollection = client.Database("CMS_portfolio").Collection("tea")
+
+	db_collection := []*mongo.Collection{ProjectCollection,BlogsCollection,LinksCollection,GithubCollection,APIKeyCollection,ColCollection,UsersCollection}
+	im := mongo.IndexModel{
+		Keys:bson.D{
+			{Key:"id", Value: -1},
+		},
+	}
+
+	for _, val := range db_collection {
+		_, err = val.Indexes().CreateOne(context.TODO(), im)
+		if err!=nil{
+			log.Fatal("error occurred: ", err)
+		}
+	}
+	
 	
 	// insert tea database
 

@@ -63,3 +63,8 @@ time:0001-01-01T00:00:00.000+00:00
 
 Q. Id 	primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 In this above formate, why the format is like this ? Find the reason
+
+
+
+if db_collection := [10]*mongo.Collection{...}
+then But you’re only providing 5 collections (or maybe 6–7 depending on your actual definitions), so the rest are nil, which causes a runtime panic when you do:

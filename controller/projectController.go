@@ -30,6 +30,7 @@ type ProjectUpdate struct {
 func CreateProject() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// first get the user email , for inserting to that userid
+		id:= c.Params("col_id")
 		user := c.Locals("user")
 		claims,ok := user.(jwt.MapClaims)
 		if !ok {
@@ -56,10 +57,18 @@ func CreateProject() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
 		}
 		hex:=user_info.Id
-		fmt.Println("hex: ", hex)
+		fmt.Printf("hex:%T\n ", hex)
+		col_id ,err:= primitive.ObjectIDFromHex(id)
+		if err!=nil{
+			 return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "Invalid ID format",
+        })
+		}
+		fmt.Printf("%T\n", col_id)
 		project := models.Project{
 			Id:primitive.NewObjectID(),
 			UserId: hex,
+			CollectionId:col_id,
 			Title: p.Title,
 			Description: p.Description,
 			Tags:p.Tags,
@@ -250,5 +259,30 @@ func DeleteProject() fiber.Handler{
 		}
 
 		return c.JSON(result)
+	}
+}
+
+func DeleteAllProject() fiber.Handler{
+	return func(c *fiber.Ctx) error{
+		u_id := c.Params("u_id")
+		if u_id==""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"User id needed",
+			})
+		}
+		uid, err := primitive.ObjectIDFromHex(u_id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID format",})
+		}
+		filter := bson.M{"user_id":uid}
+		result,err:=connect.ProjectCollection.DeleteMany(context.TODO(), filter)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"eror":"Project was not deleted successful"})
+		}
+		return c.JSON(result)
+
+
+
+
 	}
 }

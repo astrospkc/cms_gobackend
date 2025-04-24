@@ -28,6 +28,7 @@ type Collection struct{
 type Project struct{
 	Id           primitive.ObjectID `bson:"id,omitempty" json:"id"`
 	UserId		 primitive.ObjectID 	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	Title		 string	`bson:"title" json:"title"`
 	Description	 string	`bson:"description,omitempty" json:"description"`
 	Tags		 string	`bson:"tags,omitempty" json:"tags"`
@@ -38,6 +39,7 @@ type Project struct{
 }
 
 type Category struct {
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	Blogs   Blog	`bson:"blog" json:"blog"`
 	Links	string	`bson:"links" json:"links"`
 	Media	string	`bson:"media" json:"media"`
@@ -47,6 +49,7 @@ type Category struct {
 type Blog struct{
 	Id           primitive.ObjectID `bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	Title		string	`bson:"title" json:"title"`
 	Content		string	`bson:"content" json:"content"`
 	Tags		string	`bson:"tags,omitempty" json:"tags"`
@@ -58,6 +61,7 @@ type Blog struct{
 type Media struct{
 	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	FileUrl		string	`bson:"fileurl" json:"fileurl"`
 	Type		string	`bson:"content" json:"content"` 
 	FileName	string	`bson:"filename" json:"filename"`
@@ -67,6 +71,7 @@ type Media struct{
 type Link struct{
 	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId		string 	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	Source		string	`bson:"source,omitempty" json:"source"`
 	Title		string	`bson:"title,omitempty" json:"title"`
 	Url			string	`bson:"url" json:"url"` 
@@ -78,6 +83,7 @@ type Link struct{
 type Resume struct {
 	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	UserId 		string	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	FileUrl		string	`bson:"fileurl" json:"fileurl"`
 	UploadData	time.Time	`bson:"uploadData" json:"uploadData"`
 }
@@ -103,6 +109,7 @@ type UserSubscription struct {
 type APIkey struct{
 	Id 			primitive.ObjectID	`bson:"id,omitempty" json:"id"`
 	Userid		string	`bson:"user_id" json:"user_id"`
+	CollectionId primitive.ObjectID		`bson:"collection_id" json:"collection_id"`
 	Key 		string	`bson:"key" json:"key"`
 	UsageLimit	int64	`bson:"usagelimit" json:"usagelimit"`
 	CreatedAt	time.Time	`bson:"createdat" json:"createdat"`

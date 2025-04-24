@@ -44,7 +44,7 @@ func CreateCollection() fiber.Handler{
 		_,err = connect.ColCollection.InsertOne(context.Background(),collection)
 		if err!=nil{
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":"looks like some information is missing, try again",
+				"error":"Try with different name or check for missing details",
 			})
 		}
 		return c.JSON(fiber.Map{
