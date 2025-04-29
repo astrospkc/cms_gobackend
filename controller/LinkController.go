@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"gobackend/connect"
 	"gobackend/models"
 
@@ -34,7 +33,7 @@ func CreateLink() fiber.Handler{
 			})
 		}
 
-		email,ok:=claims["aud"].(string)
+		user_id,ok:=claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":"Invalid or missing and field",
@@ -48,24 +47,17 @@ func CreateLink() fiber.Handler{
 			})
 		}
 
-		user_info,err:= GetUserViaEmail(email)
-		if err!=nil{
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"User not found",
-			})
-		}
-
-		hex:=user_info.Id
+		
 		link := models.Link{
 			Id:primitive.NewObjectID(),
-			UserId:hex.Hex(),
+			UserId:user_id,
 			Source:p.Source,
 			Title:p.Title,
 			Url:p.Url,
 			Description: p.Description,
 			Category: p.Category,
 		}
-		_,err = connect.LinksCollection.InsertOne(context.Background(),link)
+		_,err := connect.LinksCollection.InsertOne(context.Background(),link)
 		if err!=nil{
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":"looks like some informaton are missing , try again",
@@ -86,20 +78,14 @@ func ReadLink() fiber.Handler{
 			})
 		}
 
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or missing  aud field",
 			})
 		}
-		user_info,err := GetUserViaEmail(email)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
-		}
-
-		fmt.Println("the user info : ", user_info)
-		hex:= user_info.Id.Hex()
-		cursor, err := connect.LinksCollection.Find(context.TODO(),bson.M{"user_id":hex})
+		
+		cursor, err := connect.LinksCollection.Find(context.TODO(),bson.M{"user_id":user_id})
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error":"No Blogs could be found",
@@ -234,21 +220,13 @@ func DeleteAllLinks() fiber.Handler{
 			})
 		}
 
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or missing  aud field",
 			})
 		}
-
-		
-		fmt.Println("users_email while create project: ", email)
-		user_info,err := GetUserViaEmail(email)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
-		}
-
-		result,err := connect.LinksCollection.DeleteMany(context.Background(),bson.M{"user_id":user_info.Id.Hex()})
+		result,err := connect.LinksCollection.DeleteMany(context.Background(),bson.M{"user_id":user_id})
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error":"failed to delete all ",

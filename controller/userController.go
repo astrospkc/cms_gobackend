@@ -140,7 +140,7 @@ func CreateUser() fiber.Handler {
 		}
 		
 		
-		tokenString,err := CreateToken(d.Email)
+		tokenString,err := CreateToken(user.Id.Hex())
 		if err!=nil{
 			log.Println("failed to create token")
 		}
@@ -196,6 +196,7 @@ func Login() fiber.Handler{
 			})
 		}
 		fmt.Println("user: ", user)
+		fmt.Println("id in login :", user.Id)
 		pass := d.Password
 		password := []byte(pass)
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password),password )
@@ -204,7 +205,7 @@ func Login() fiber.Handler{
 				"error":"Password is incorrect, please try once more",
 			})
 		}
-		tokenString, err := CreateToken(d.Email)
+		tokenString, err := CreateToken(user.Id.Hex())
 		if err!=nil{
 			log.Println("failed to create token")
 		}
@@ -235,14 +236,14 @@ func GetUser() fiber.Handler{
 				"error": "Invalid JWT claims format",
 			})
 		}
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or missing  aud field",
 			})
 		}
 		
-		user_info,err := GetUserViaEmail(email)
+		user_info,err := GetUserViaId(user_id)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
 		}

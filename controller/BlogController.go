@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"gobackend/connect"
 	"gobackend/models"
 
@@ -27,7 +26,16 @@ type Blog struct{
 func CreateBlog() fiber.Handler{
 	return func(c *fiber.Ctx) error {
 		// first get the user email , for inserting to that userid
+		// getting collection_id
 		
+		col_id:=c.Params("col_id")
+		id,err:=primitive.ObjectIDFromHex(col_id)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"id format not valid",
+			})
+		}
+
 		user := c.Locals("user")
 		claims,ok := user.(jwt.MapClaims)
 		if !ok {
@@ -36,7 +44,7 @@ func CreateBlog() fiber.Handler{
 			})
 		}
 
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or missing  aud field",
@@ -49,16 +57,11 @@ func CreateBlog() fiber.Handler{
 				"error":"Invalid request body",
 			})
 		}
-		fmt.Println("users_email while create project: ", email)
-		user_info,err := GetUserViaEmail(email)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
-		}
-		hex:=user_info.Id
-		fmt.Println("hex: ", hex)
+		
 		blog := models.Blog{
 			Id:primitive.NewObjectID(),
-			UserId: hex.Hex(),
+			UserId:user_id,
+			CollectionId: id,
 			Title: p.Title,
 			Content: p.Content,
 			Tags:p.Tags,
@@ -89,20 +92,13 @@ func ReadBlog() fiber.Handler{
 			})
 		}
 
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or missing  aud field",
 			})
 		}
-		user_info,err := GetUserViaEmail(email)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
-		}
-
-		fmt.Println("the user info : ", user_info)
-		hex:= user_info.Id.Hex()
-		cursor, err := connect.BlogsCollection.Find(context.TODO(),bson.M{"user_id":hex})
+		cursor, err := connect.BlogsCollection.Find(context.TODO(),bson.M{"user_id":user_id})
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error":"No Blogs could be found",
@@ -115,7 +111,6 @@ func ReadBlog() fiber.Handler{
 				"error":"Failed to parse blogs data",
 			})
 		}
-
 		return c.JSON(blogs)
 	}
 }
@@ -223,5 +218,29 @@ func DeleteBlog() fiber.Handler{
 
 		return c.JSON(result)
 
+	}
+}
+
+func DeleteAllBlog() fiber.Handler{
+	return func(c *fiber.Ctx) error {
+		col_id:= c.Params("col_id")
+		id, err := primitive.ObjectIDFromHex(col_id)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"id format is not valid",
+			})
+		}
+
+		filter := bson.M{"collection_id":id}
+		result, err:= connect.BlogsCollection.DeleteMany(context.TODO(), filter)
+		if err!=nil{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Failed to delete all blogs",
+			})
+		}
+		return c.JSON(fiber.Map{
+			"message":"Successfull deleted all blogs",
+			"result":result,
+		})
 	}
 }

@@ -27,18 +27,19 @@ func RegisterNormalRoutes(app *fiber.App){
 	
 	project.Post("/createProject/:col_id", controller.CreateProject())
 	project.Put("/updateProject/:projectid", controller.UpdateProject())
-	project.Get("/readProject", controller.ReadProject())
+	project.Get("/readProject/:col_id", controller.ReadProject())
 	project.Get("/readProjectWithId/:projectid",controller.FindOneViaPID())
 	project.Delete("/deleteProject/:projectid",controller.DeleteProject())
 	project.Delete("/deleteAllProject/:u_id", controller.DeleteAllProject())
 	// Blog-section
 	blog := app.Group("/blog", middleware.FetchUser())
 
-	blog.Post("/createBlog",controller.CreateBlog())
-	blog.Get("/readBlog", controller.ReadBlog())
-	blog.Get("/readBlog/:blogid", controller.ReadBlogWIthId())
+	blog.Post("/createBlog/:col_id",controller.CreateBlog())
+	blog.Get("/readAllBlog/:col_id", controller.ReadBlog())
+	blog.Get("/readOneBlog/:blogid", controller.ReadBlogWIthId())
 	blog.Put("/updateBlog/:blogid",controller.UpdateBlogWithBlogId())
 	blog.Delete("/deleteBlog/:blogid", controller.DeleteBlog())
+	blog.Delete("/deleteAllBlog/:col_id", controller.DeleteAllBlog())
 	
 	
 	// Link section

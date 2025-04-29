@@ -2,11 +2,11 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"gobackend/connect"
 	"gobackend/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -14,10 +14,16 @@ import (
 func CreateCollection() fiber.Handler{
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("user")
-		email,err := GetClaimsEmail(user)
-		if err!= nil{
+		claims,ok:=user.(jwt.MapClaims)
+		if !ok{
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":err.Error(),
+				"error": "Invalid JWT claims format",
+			})
+		}
+		user_id, ok:=claims["aud"].(string)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "user id not okay",
 			})
 		}
 		
@@ -27,16 +33,16 @@ func CreateCollection() fiber.Handler{
 				"error":"Invalid request body",
 			})
 		}
-		user_info, err := GetUserViaEmail(email)
+
+		id,err:=primitive.ObjectIDFromHex(user_id)
 		if err!=nil{
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"User not found",
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error":"Invalid request body",
 			})
 		}
-		hex:= user_info.Id
 		collection := models.Collection{
 			Id:primitive.NewObjectID(),
-			UserId: hex,
+			UserId: id,
 			Title: col.Title,
 			Description: col.Description,
 		}
@@ -48,7 +54,12 @@ func CreateCollection() fiber.Handler{
 			})
 		}
 		return c.JSON(fiber.Map{
-			"succcess":"created",
+			"id":collection.Id,
+			"user_id":collection.UserId,
+			"title":collection.Title,
+			"description":collection.Description,
+			"time":collection.CreatedAt,
+
 		})
 
 	}
@@ -57,21 +68,21 @@ func CreateCollection() fiber.Handler{
 func GetAllCollection() fiber.Handler{
 	return func(c *fiber.Ctx) error{
 		user := c.Locals("user")
-		email,err := GetClaimsEmail(user)
-		if err!= nil{
+		claims, ok:=user.(jwt.MapClaims)
+		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":err.Error(),
+				"error": "Invalid JWT claims format",
 			})
 		}
-
-		userInfo, err:= GetUserViaEmail(email)
+		user_id, ok:=claims["aud"].(string)
+	
+		id, err:= primitive.ObjectIDFromHex(user_id)
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"Failed to fetch user_info",
+				"error": "id format is not valid",
 			})
 		}
-
-		cursor, err := connect.ColCollection.Find(context.TODO(), bson.M{"user_id":userInfo.Id})
+		cursor, err := connect.ColCollection.Find(context.TODO(), bson.M{"user_id":id})
 		if err!=nil{
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "No collection could be found",
@@ -83,7 +94,7 @@ func GetAllCollection() fiber.Handler{
 				"error": "Failed to parse project data",
 			})
 		}
-		fmt.Println(collections)
+		// fmt.Println(collections)
 		return c.JSON(collections)
 	}
 }

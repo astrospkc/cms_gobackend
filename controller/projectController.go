@@ -38,10 +38,10 @@ func CreateProject() fiber.Handler {
 				"error": "Invalid JWT claims format",
 			})
 		}
-		email, ok := claims["aud"].(string)
+		user_id, ok := claims["aud"].(string)
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid or missing  aud field",
+				"error": "user id not okay",
 			})
 		}
 
@@ -51,13 +51,14 @@ func CreateProject() fiber.Handler {
 				"error":"Invalid request body",
 			})
 		}
-		fmt.Println("users_email while create project: ", email)
-		user_info,err := GetUserViaEmail(email)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User not found"})
+		
+	
+		u_id,err := primitive.ObjectIDFromHex(user_id)
+		if err!=nil{
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "id format invalid",
+			})
 		}
-		hex:=user_info.Id
-		fmt.Printf("hex:%T\n ", hex)
 		col_id ,err:= primitive.ObjectIDFromHex(id)
 		if err!=nil{
 			 return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -67,7 +68,7 @@ func CreateProject() fiber.Handler {
 		fmt.Printf("%T\n", col_id)
 		project := models.Project{
 			Id:primitive.NewObjectID(),
-			UserId: hex,
+			UserId:u_id,
 			CollectionId:col_id,
 			Title: p.Title,
 			Description: p.Description,
@@ -77,10 +78,10 @@ func CreateProject() fiber.Handler {
 			LiveDemoLink: p.LiveDemoLink,
 		}
 
-		_,err = connect.ProjectCollection.InsertOne(context.Background(), project)
+		_,err = connect.ProjectCollection.InsertOne(context.TODO(), project)
 		if err!=nil{
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "looks like some information is missing , try again",
+				"error": "It can be duplicacy error or you might have missed some information.",
 		})
 
 		
@@ -91,30 +92,18 @@ func CreateProject() fiber.Handler {
 
 func ReadProject() fiber.Handler{
 	return func(c *fiber.Ctx) error {
-		user := c.Locals("user")
-		claims,ok := user.(jwt.MapClaims)
-		if !ok {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid JWT claims format",
-			})
-		}
-		email, ok := claims["aud"].(string)
-		if !ok {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid or missing  aud field",
-			})
-		}
-		// we can't get project list using email , we need user_id for it.
-		userInfo, err:= GetUserViaEmail(email)
+		col_id := c.Params("col_id")
+		
+		id ,err:= primitive.ObjectIDFromHex(col_id)
 		if err!=nil{
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":"Failed to fetch user_info",
-			})
+			 return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "Invalid ID format",
+        })
 		}
 		
 		
 		// var project_info models.Project
-		cursor,err := connect.ProjectCollection.Find(context.TODO(), bson.M{"user_id":userInfo.Id})
+		cursor,err := connect.ProjectCollection.Find(context.TODO(), bson.M{"collection_id":id})
 
 		// cursor,err := connect.ProjectCollection.Find(context.TODO(), bson.M{"email":email})
 		if err!=nil{
@@ -129,7 +118,7 @@ func ReadProject() fiber.Handler{
 				"error": "Failed to parse project data",
 			})
 		}
-		fmt.Println(projects)
+		// fmt.Println(projects)
 		return c.JSON(projects)
 	}
 }

@@ -103,6 +103,7 @@ func Connect(){
 	ProjectCollection = client.Database(dbName).Collection(colNameProjects)
 	indexModel =mongo.IndexModel{
 		Keys: bson.D{
+			
 			{Key:"user_id",Value:1},
 			{Key:"title", Value: 1},
 		},

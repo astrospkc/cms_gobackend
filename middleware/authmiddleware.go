@@ -21,7 +21,7 @@ func FetchUser() fiber.Handler{
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		// fmt.Println("the tokenstring in middleware: ", tokenString)
 		secret := os.Getenv("JWT_SECRET")
-		fmt.Println("the secret: ", secret)
+		// fmt.Println("the secret: ", secret)
 		if secret == "" {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "JWT secret not configured",
@@ -34,8 +34,8 @@ func FetchUser() fiber.Handler{
 			}
 			return []byte(secret), nil
 		})
-		fmt.Println("check")
-		fmt.Println("token in middleware: ", token)
+		// fmt.Println("check")
+		// fmt.Println("token in middleware: ", token)
 		if err != nil || !token.Valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or expired token",
@@ -53,7 +53,7 @@ func FetchUser() fiber.Handler{
 			})
 		}
 		c.Locals("user", claims)
-		fmt.Println("user: ", claims) // or "id" / "email", whatever you stored
+		// fmt.Println("user: ", claims) // or "id" / "email", whatever you stored
 
 		return c.Next()
 
